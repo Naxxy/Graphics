@@ -317,7 +317,7 @@ void drawMesh(SceneObject sceneObj) {
     // Set the model matrix - this should combine translation, rotation and scaling based on what's
     // in the sceneObj structure (see near the top of the program).
 
-    mat4 model = Translate(sceneObj.loc) * Scale(sceneObj.scale);
+    mat4 model = Translate(sceneObj.loc) * Scale(sceneObj.scale) * RotateX(-1*sceneObj.angles[0]) * RotateY(-1*sceneObj.angles[1]) * RotateZ(-1*sceneObj.angles[2]);
 
 
     // Set the model-view matrix for the shaders
@@ -344,8 +344,12 @@ display( void )
 // add appropriate rotations.
 
 
+    mat4 trans = Translate(0.0, 0.0, -viewDist);
+    mat4 rotY = RotateY(camRotSidewaysDeg);
+    mat4 rotX = RotateX(camRotUpAndOverDeg);
+    view = trans*rotY*rotX;
 
-    view = Translate(0.0, 0.0, -viewDist);
+  //  view = Translate(0.0, 0.0, -viewDist);
 
 
     SceneObject lightObj1 = sceneObjs[1]; 
