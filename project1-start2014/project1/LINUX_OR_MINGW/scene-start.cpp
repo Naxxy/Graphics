@@ -403,6 +403,12 @@ static void adjustRedGreen(vec2 rg)
 
 static void adjustBlueBrightness(vec2 bl_br) 
   { sceneObjs[toolObj].rgb[2]+=bl_br[0]; sceneObjs[toolObj].brightness+=bl_br[1]; }
+  
+static void adjustAmbientDiffuse(vec2 ambdif)
+  { sceneObjs[toolObj].ambient += ambdif[0]; sceneObjs[toolObj].diffuse += ambdif[1]; printf("amb: %f, dif: %f\n", sceneObjs[toolObj].ambient, sceneObjs[toolObj].diffuse); }
+  
+static void adjustSpecularShine(vec2 specshine)
+  { sceneObjs[toolObj].specular += specshine[0]; sceneObjs[toolObj].shine += specshine[1]; printf("spec: %f, shine: %f\n", sceneObjs[toolObj].specular, sceneObjs[toolObj].shine); }  
 
   static void lightMenu(int id) {
     deactivateTool();
@@ -447,7 +453,13 @@ static void materialMenu(int id) {
      setToolCallbacks(adjustRedGreen, mat2(1, 0, 0, 1),
                       adjustBlueBrightness, mat2(1, 0, 0, 1) );
   }
-  // You'll need to fill in the remaining menu items here.					    
+  // You'll need to fill in the remaining menu items here.
+  
+    if(id==20) {
+	toolObj=currObject;
+	setToolCallbacks(adjustAmbientDiffuse, mat2(1, 0, 0, 1),
+					 adjustSpecularShine, mat2(1, 0, 0, -50));
+	printf("Amb: %f , Dif: %f, Spec: %f, Shine: %f\n", sceneObjs[toolObj].ambient, sceneObjs[toolObj].diffuse, sceneObjs[toolObj].specular, sceneObjs[toolObj].shine  );
 					  
   else { printf("Error in materialMenu\n"); }
 }
@@ -480,7 +492,8 @@ static void makeMenu() {
 
   int materialMenuId = glutCreateMenu(materialMenu);
   glutAddMenuEntry("R/G/B/All",10);
-  glutAddMenuEntry("UNIMPLEMENTED: Ambient/Diffuse/Specular/Shine",20);
+  //glutAddMenuEntry("UNIMPLEMENTED: Ambient/Diffuse/Specular/Shine",20);
+  glutAddMenuEntry("Ambient/Diffuse/Specular/Shine",20);
 
   int texMenuId = createArrayMenu(numTextures, textureMenuEntries, texMenu);
   int groundMenuId = createArrayMenu(numTextures, textureMenuEntries, groundMenu);
