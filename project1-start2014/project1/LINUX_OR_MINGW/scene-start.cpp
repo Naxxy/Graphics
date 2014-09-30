@@ -550,26 +550,34 @@ void idle( void ) {
 
 // ---------------------------------------------------------------------------------------
 void reshape( int width, int height ) {
-
+    
     windowWidth = width;
     windowHeight = height;
 
     glViewport(0, 0, width, height);
-
 
     // You'll need to modify this so that the view is similar to that in the sample solution.
     // In particular: 
     //   - the view should include "closer" visible objects (slightly tricky)
     //   - when the width is less than the height, the view should adjust so that the same part
     //     of the scene is visible across the width of the window.
-    
-    GLfloat nearDist = 0.01;
-    projection = Frustum(-nearDist*(float)width/(float)height, nearDist*(float)width/(float)height,
-                         -nearDist, nearDist,
-                         20*nearDist, 100.0);
-			 
+
 // Adjusted: neardist changed from 0.2 to 0.01;
 // Adjusted: near clipping param multiplied by 20
+
+    GLfloat nearDist = 0.01;
+    
+     if(width < height) {
+       // Keep window width constant
+	    projection = Frustum(-nearDist, nearDist,
+                         -nearDist*(float)height/(float)width, nearDist*(float)height/(float)width,
+                         20*nearDist, 100.0);
+    } else {
+      // Keep window height constant
+	    projection = Frustum(-nearDist*(float)width/(float)height, nearDist*(float)width/(float)height,
+                         -nearDist, nearDist,
+                         20*nearDist, 100.0);
+    }
 }
 
 // ---------------------------------------------------------------------------------------
