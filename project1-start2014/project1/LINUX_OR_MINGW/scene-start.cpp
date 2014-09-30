@@ -25,7 +25,7 @@ GLuint shaderProgram; // The number identifying the GLSL shader program
 GLuint vPosition, vNormal, vTexCoord; // IDs for vshader input vars (from glGetAttribLocation)
 GLuint projectionU, modelViewU; // IDs for uniform variables (from glGetUniformLocation)
 
-static float viewDist = 1.5; // Distance from the camera to the centre of the scene
+static float viewDist = 30; // Distance from the camera to the centre of the scene
 static float camRotSidewaysDeg=0; // rotates the camera sideways around the centre
 static float camRotUpAndOverDeg=20; // rotates the camera up and over the centre.
 
@@ -183,11 +183,11 @@ static void mouseClickOrScroll(int button, int state, int x, int y) {
     }
 }
 
+// -----
 static void mousePassiveMotion(int x, int y) {
     mouseX=x;
     mouseY=y;
 }
-
 
 mat2 camRotZ() { return rotZ(-camRotSidewaysDeg) * mat2(10.0, 0, 0, -10.0); }
 
@@ -197,12 +197,15 @@ static void adjustCamrotsideViewdist(vec2 cv)
 {   //cout << cv << endl;   // Debugging
     camRotSidewaysDeg+=cv[0]; viewDist+=cv[1]; }
 
+// -----
 static void adjustcamSideUp(vec2 su)
   { camRotSidewaysDeg+=su[0]; camRotUpAndOverDeg+=su[1]; }
-  
+
+// -----  
 static void adjustLocXZ(vec2 xz) 
   { sceneObjs[toolObj].loc[0]+=xz[0];  sceneObjs[toolObj].loc[2]+=xz[1]; }
 
+// -----
 static void adjustScaleY(vec2 sy) 
   { sceneObjs[toolObj].scale+=sy[0];  sceneObjs[toolObj].loc[1]+=sy[1]; }
 
@@ -554,18 +557,19 @@ void reshape( int width, int height ) {
     glViewport(0, 0, width, height);
 
 
-
     // You'll need to modify this so that the view is similar to that in the sample solution.
     // In particular: 
     //   - the view should include "closer" visible objects (slightly tricky)
     //   - when the width is less than the height, the view should adjust so that the same part
     //     of the scene is visible across the width of the window.
-
-    GLfloat nearDist = 0.2;
+    
+    GLfloat nearDist = 0.01;
     projection = Frustum(-nearDist*(float)width/(float)height, nearDist*(float)width/(float)height,
                          -nearDist, nearDist,
-                         nearDist, 100.0);
-
+                         20*nearDist, 100.0);
+			 
+// Adjusted: neardist changed from 0.2 to 0.01;
+// Adjusted: near clipping param multiplied by 20
 }
 
 // ---------------------------------------------------------------------------------------
