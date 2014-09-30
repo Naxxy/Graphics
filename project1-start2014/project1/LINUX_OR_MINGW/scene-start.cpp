@@ -76,7 +76,7 @@ int toolObj = -1;  // The object currently being modified
 
 
 
-//------------------------------------------------------------
+// ---------------------------------------------------------------------------------------
 // Loads a texture by number, and binds it for later use.  
 void loadTextureIfNotAlreadyLoaded(int i) {
     if(textures[i] != NULL) return; // The texture is already loaded.
@@ -165,7 +165,7 @@ void loadMeshIfNotAlreadyLoaded(int meshNumber) {
 }
 
 
-// --------------------------------------
+// ---------------------------------------------------------------------------------------
 static void mouseClickOrScroll(int button, int state, int x, int y) {
     if(button==GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
          if(glutGetModifiers()!=GLUT_ACTIVE_SHIFT) activateTool(button);
@@ -211,8 +211,8 @@ static void doRotate() {
     setToolCallbacks(adjustCamrotsideViewdist, mat2(400,0,0,-2),
                      adjustcamSideUp, mat2(400, 0, 0,-90) );
 }
-				   
-//------Add an object to the scene
+
+// -----Add an object to the scene--------------------------------------------------------
 
 static void addObject(int id) {
 
@@ -244,7 +244,7 @@ static void addObject(int id) {
   glutPostRedisplay();
 }
 
-// ------ The init function
+// -------The init function---------------------------------------------------------------
 
 void init( void )
 {
@@ -283,7 +283,7 @@ void init( void )
     sceneObjs[1].loc = vec4(2.0, 1.0, 1.0, 1.0);
     sceneObjs[1].scale = 0.1;
     sceneObjs[1].texId = 0; // Plain texture
-    sceneObjs[1].brightness = 0.2; // The light's brightness is 5 times this (below).
+    sceneObjs[1].brightness = 0.6; // The light's brightness is 5 times this (below).
 
     addObject(rand() % numMeshes); // A test mesh
 
@@ -294,8 +294,7 @@ void init( void )
     glClearColor( 0.0, 0.0, 0.0, 1.0 ); /* black background */
 }
 
-//----------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------------------
 void drawMesh(SceneObject sceneObj) {
 
     // Activate a texture, loading if needed.
@@ -331,6 +330,7 @@ void drawMesh(SceneObject sceneObj) {
     glDrawElements(GL_TRIANGLES, meshes[sceneObj.meshId]->mNumFaces * 3, GL_UNSIGNED_INT, NULL); CheckError();
 }
 
+// ---------------------------------------------------------------------------------------
 
 void
 display( void )
@@ -374,13 +374,13 @@ display( void )
 
 }
 
-//--------------Menus
+// -------------Menus---------------------------------------------------------------------
 
 static void objectMenu(int id) {
   deactivateTool();
   addObject(id);
 }
-
+// -----
 static void texMenu(int id) {
     deactivateTool();
     if(currObject>=0) {
@@ -388,29 +388,35 @@ static void texMenu(int id) {
         glutPostRedisplay();
     }
 }
-
+// -----
 static void groundMenu(int id) {
         deactivateTool();
         sceneObjs[0].texId = id;
         glutPostRedisplay();
 }
 
+// -----
 static void adjustBrightnessY(vec2 by) 
   { sceneObjs[toolObj].brightness+=by[0]; sceneObjs[toolObj].loc[1]+=by[1]; }
 
+// -----
 static void adjustRedGreen(vec2 rg) 
   { sceneObjs[toolObj].rgb[0]+=rg[0]; sceneObjs[toolObj].rgb[1]+=rg[1]; }
 
+// -----
 static void adjustBlueBrightness(vec2 bl_br) 
   { sceneObjs[toolObj].rgb[2]+=bl_br[0]; sceneObjs[toolObj].brightness+=bl_br[1]; }
-  
+
+// -----  
 static void adjustAmbientDiffuse(vec2 ambdif)
   { sceneObjs[toolObj].ambient += ambdif[0]; sceneObjs[toolObj].diffuse += ambdif[1]; printf("amb: %f, dif: %f\n", sceneObjs[toolObj].ambient, sceneObjs[toolObj].diffuse); }
-  
+
+// -----  
 static void adjustSpecularShine(vec2 specshine)
   { sceneObjs[toolObj].specular += specshine[0]; sceneObjs[toolObj].shine += specshine[1]; printf("spec: %f, shine: %f\n", sceneObjs[toolObj].specular, sceneObjs[toolObj].shine); }  
 
-  static void lightMenu(int id) {
+// -----
+static void lightMenu(int id) {
     deactivateTool();
     if(id == 70) {
 	    toolObj = 1;
@@ -426,6 +432,7 @@ static void adjustSpecularShine(vec2 specshine)
     else { printf("Error in lightMenu\n"); exit(1); }
 }
 
+// -----
 static int createArrayMenu(int size, const char menuEntries[][128], void(*menuFn)(int)) {
     int nSubMenus = (size-1)/10 + 1;
     int subMenus[nSubMenus];
@@ -445,6 +452,7 @@ static int createArrayMenu(int size, const char menuEntries[][128], void(*menuFn
     return menuId;
 }
 
+// -----
 static void materialMenu(int id) {
   deactivateTool();
   if(currObject<0) return;
@@ -461,16 +469,18 @@ static void materialMenu(int id) {
 					 adjustSpecularShine, mat2(1, 0, 0, -50));
 	printf("Amb: %f , Dif: %f, Spec: %f, Shine: %f\n", sceneObjs[toolObj].ambient, sceneObjs[toolObj].diffuse, sceneObjs[toolObj].specular, sceneObjs[toolObj].shine  );
 					  
-  else { printf("Error in materialMenu\n"); }
+    } else { printf("Error in materialMenu\n"); }
 }
 
+// -----
 static void adjustAngleYX(vec2 angle_yx) 
   {  sceneObjs[currObject].angles[1]+=angle_yx[0]; sceneObjs[currObject].angles[0]+=angle_yx[1]; }
 
+// -----
 static void adjustAngleZTexscale(vec2 az_ts) 
   {  sceneObjs[currObject].angles[2]+=az_ts[0]; sceneObjs[currObject].texScale+=az_ts[1]; }
 
-
+// -----
 static void mainmenu(int id) {
     deactivateTool();
     if(id == 41 && currObject>=0) {
@@ -487,6 +497,7 @@ static void mainmenu(int id) {
     if(id == 99) exit(0);
 }
 
+// -----
 static void makeMenu() {
   int objectId = createArrayMenu(numMeshes, objectMenuEntries, objectMenu);
 
@@ -517,8 +528,7 @@ static void makeMenu() {
   glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
-
-//----------------------------------------------------------------------------
+// ------end of menu functions-----------------------------------------------------------
 
 void
 keyboard( unsigned char key, int x, int y )
@@ -530,15 +540,12 @@ keyboard( unsigned char key, int x, int y )
     }
 }
 
-//----------------------------------------------------------------------------
-
-
+// ---------------------------------------------------------------------------------------
 void idle( void ) {
   glutPostRedisplay();
 }
 
-
-
+// ---------------------------------------------------------------------------------------
 void reshape( int width, int height ) {
 
     windowWidth = width;
@@ -561,6 +568,7 @@ void reshape( int width, int height ) {
 
 }
 
+// ---------------------------------------------------------------------------------------
 void timer(int unused)
 {
     char title[256];
@@ -572,6 +580,8 @@ void timer(int unused)
     numDisplayCalls = 0;
     glutTimerFunc(1000, timer, 1);
 }
+
+// ---------------------------------------------------------------------------------------
 
 char dirDefault1[] = "models-textures";
 char dirDefault2[] = "/c/temp/models-textures";
@@ -589,6 +599,8 @@ void fileErr(char* fileName) {
 
     exit(1);
 }
+
+// ---------------------------------------------------------------------------------------
 
 int main( int argc, char* argv[] )
 {
