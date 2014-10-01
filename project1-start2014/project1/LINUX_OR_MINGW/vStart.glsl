@@ -17,11 +17,11 @@ uniform float Shininess;
 void main()
 {
     // Transform vertex position into eye coordinates
-    vec3 pos = (ModelView * vPosition).xyz;
+    vec3 pos = (ModelView * vPosition).xyz;					//not this
 
 
     // The vector to the light from the vertex    
-    vec3 Lvec = LightPosition.xyz - pos;
+    vec3 Lvec = LightPosition.xyz - pos;					// not this
 
     // Unit direction vectors for Blinn-Phong shading calculation
     vec3 L = normalize( Lvec );   // Direction to the light source
@@ -49,6 +49,6 @@ void main()
     color.rgb = globalAmbient  + ambient + diffuse + specular;
     color.a = 1.0;
 
-    gl_Position = Projection * ModelView * vPosition;
-    texCoord = vTexCoord;
+    gl_Position = Projection * ModelView * vPosition;				// not this
+    texCoord = vTexCoord;							// not this
 }
