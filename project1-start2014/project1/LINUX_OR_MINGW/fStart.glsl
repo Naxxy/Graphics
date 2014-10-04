@@ -16,7 +16,7 @@ uniform sampler2D texture;
 void
 main()
 {
-    
+
     // The vector to the light from the vertex    
     vec3 Lvec = LightPosition.xyz - fPos;
     float Ldist = length(Lvec);

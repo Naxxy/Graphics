@@ -29,6 +29,13 @@ static float viewDist = 30; // Distance from the camera to the centre of the sce
 static float camRotSidewaysDeg=0; // rotates the camera sideways around the centre
 static float camRotUpAndOverDeg=20; // rotates the camera up and over the centre.
 
+// ***My addition (Alex)***
+bool waveToggle = false;
+GLfloat sinAngle;
+float lastAngle;
+float thisAngle;
+float restart;
+
 mat4 projection; // Projection matrix - set in the reshape function
 mat4 view; // View matrix - set in the display function.
 
@@ -274,6 +281,10 @@ void init( void )
 
     projectionU = glGetUniformLocation(shaderProgram, "Projection");
     modelViewU = glGetUniformLocation(shaderProgram, "ModelView");
+    
+    // ***My addition (Alex)***
+    sinAngle = glGetUniformLocation(shaderProgram, "sinAngle");
+    thisAngle = lastAngle = restart = 0;
 
     // Objects 0, and 1 are the ground and the first light.
     addObject(0); // Square for the ground
@@ -351,10 +362,19 @@ display( void )
     mat4 rotY = RotateY(camRotSidewaysDeg);
     mat4 rotX = RotateX(camRotUpAndOverDeg);
     view = trans*rotY*rotX;
-
-  //  view = Translate(0.0, 0.0, -viewDist);
-
-
+//  view = Translate(0.0, 0.0, -viewDist);
+    
+    // ***My addition (Alex)***
+    thisAngle = (0.001 * glutGet(GLUT_ELAPSED_TIME));
+    if(waveToggle) {
+	  lastAngle = thisAngle - restart;
+	  sinAngle = lastAngle;
+	  glUniform1f( glGetUniformLocation(shaderProgram, "sinAngle"), sinAngle );
+    } else {
+	  restart = thisAngle - lastAngle;
+    }
+    
+    
     SceneObject lightObj1 = sceneObjs[1]; 
     vec4 lightPosition = view * lightObj1.loc ;
 
@@ -362,10 +382,10 @@ display( void )
 
     for(int i=0; i<nObjects; i++) {
         SceneObject so = sceneObjs[i];
-
-        vec3 rgb = so.rgb * lightObj1.rgb * so.brightness * lightObj1.brightness * 2.0;
-        glUniform3fv( glGetUniformLocation(shaderProgram, "AmbientProduct"), 1, so.ambient * rgb ); CheckError();
-        glUniform3fv( glGetUniformLocation(shaderProgram, "DiffuseProduct"), 1, so.diffuse * rgb );
+	
+        vec3 rgb = lightObj1.rgb * so.brightness * lightObj1.brightness * 2.0;
+        glUniform3fv( glGetUniformLocation(shaderProgram, "AmbientProduct"), 1, so.ambient * so.rgb * rgb ); CheckError();
+        glUniform3fv( glGetUniformLocation(shaderProgram, "DiffuseProduct"), 1, so.diffuse * so.rgb * rgb );
         glUniform3fv( glGetUniformLocation(shaderProgram, "SpecularProduct"), 1, so.specular * rgb );
         glUniform1f( glGetUniformLocation(shaderProgram, "Shininess"), so.shine ); CheckError();
 
@@ -486,6 +506,8 @@ static void adjustAngleZTexscale(vec2 az_ts)
 // -----
 static void mainmenu(int id) {
     deactivateTool();
+    if(id == 12)
+      waveToggle = !waveToggle;
     if(id == 41 && currObject>=0) {
 	    toolObj=currObject;
         setToolCallbacks(adjustLocXZ, camRotZ(),
@@ -527,6 +549,7 @@ static void makeMenu() {
   glutAddSubMenu("Texture",texMenuId);
   glutAddSubMenu("Ground Texture",groundMenuId);
   glutAddSubMenu("Lights",lightMenuId);
+  glutAddMenuEntry("WaveToggle", 12);
   glutAddMenuEntry("EXIT", 99);
   glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
@@ -562,9 +585,6 @@ void reshape( int width, int height ) {
     //   - when the width is less than the height, the view should adjust so that the same part
     //     of the scene is visible across the width of the window.
 
-// Adjusted: neardist changed from 0.2 to 0.01;
-// Adjusted: near clipping param multiplied by 20
-
     GLfloat nearDist = 0.01;
     
      if(width < height) {
@@ -584,8 +604,9 @@ void reshape( int width, int height ) {
 void timer(int unused)
 {
     char title[256];
-    sprintf(title, "%s %s: %d Frames Per Second @ %d x %d",
-            lab, programName, numDisplayCalls, windowWidth, windowHeight );
+    // ***My addition (Alex)***
+    sprintf(title, "%s %s: %d Frames Per Second @ %d x %d, waveToggle = %s, angle = %f",
+            lab, programName, numDisplayCalls, windowWidth, windowHeight, waveToggle?"True":"False", thisAngle-lastAngle);
 
     glutSetWindowTitle(title);
 
