@@ -254,6 +254,39 @@ static void addObject(int id) {
   glutPostRedisplay();
 }
 
+// -----Duplicate an object---------------------------------------------------------------
+
+static void duplicateObject(SceneObject sourceObj) {
+
+  vec2 currPos = currMouseXYworld(camRotSidewaysDeg);
+  sceneObjs[nObjects].loc[0] = currPos[0];
+  sceneObjs[nObjects].loc[1] = 0.0;
+  sceneObjs[nObjects].loc[2] = currPos[1];
+  sceneObjs[nObjects].loc[3] = 1.0;
+
+  //if(id!=0 && id!=55)
+  
+  sceneObjs[nObjects].scale = sourceObj.scale;
+
+  sceneObjs[nObjects].rgb[0] = sourceObj.rgb[0]; sceneObjs[nObjects].rgb[1] = sourceObj.rgb[1];
+  sceneObjs[nObjects].rgb[2] = sourceObj.rgb[2]; sceneObjs[nObjects].brightness = sourceObj.brightness;
+
+  sceneObjs[nObjects].diffuse = sourceObj.diffuse; sceneObjs[nObjects].specular = sourceObj.specular;
+  sceneObjs[nObjects].ambient = sourceObj.ambient; sceneObjs[nObjects].shine = sourceObj.shine;
+
+  sceneObjs[nObjects].angles[0] = sourceObj.angles[0]; sceneObjs[nObjects].angles[1] = sourceObj.angles[1];
+  sceneObjs[nObjects].angles[2] = sourceObj.angles[2];
+
+  sceneObjs[nObjects].meshId = sourceObj.meshId;
+  sceneObjs[nObjects].texId = sourceObj.texId;
+  sceneObjs[nObjects].texScale = sourceObj.texScale;
+
+  toolObj = currObject = nObjects++;
+  setToolCallbacks(adjustLocXZ, camRotZ(),
+                   adjustScaleY, mat2(0.05, 0, 0, 10.0) );
+  glutPostRedisplay();
+}
+
 // -------The init function---------------------------------------------------------------
 
 void init( void )
@@ -298,7 +331,13 @@ void init( void )
     sceneObjs[1].scale = 0.1;
     sceneObjs[1].texId = 0; // Plain texture
     sceneObjs[1].brightness = 0.6; // The light's brightness is 5 times this (below).
-
+    
+    addObject(55); // Sphere for second, directional light
+    sceneObjs[2].loc = vec4(-2.0, 1.0, 1.0, 0.0);
+    sceneObjs[2].scale = 0.2;
+    sceneObjs[2].texId = 0; // Plain tex
+    sceneObjs[2].brightness = 0.6; // light's brightness is 5 times this (same as first light).
+    
     addObject(rand() % numMeshes); // A test mesh
 
     // We need to enable the depth test to discard fragments that
@@ -375,7 +414,7 @@ display( void )
     }
     
     
-    SceneObject lightObj1 = sceneObjs[1]; 
+    /*SceneObject lightObj1 = sceneObjs[1]; 
     vec4 lightPosition = view * lightObj1.loc ;
 
     glUniform4fv( glGetUniformLocation(shaderProgram, "LightPosition"), 1, lightPosition); CheckError();
@@ -387,6 +426,37 @@ display( void )
         glUniform3fv( glGetUniformLocation(shaderProgram, "AmbientProduct"), 1, so.ambient * so.rgb * rgb ); CheckError();
         glUniform3fv( glGetUniformLocation(shaderProgram, "DiffuseProduct"), 1, so.diffuse * so.rgb * rgb );
         glUniform3fv( glGetUniformLocation(shaderProgram, "SpecularProduct"), 1, so.specular * rgb );
+        glUniform1f( glGetUniformLocation(shaderProgram, "Shininess"), so.shine ); CheckError();
+
+        drawMesh(sceneObjs[i]);
+
+    }*/
+
+    SceneObject lightObj1 = sceneObjs[1]; 
+    SceneObject lightObj2 = sceneObjs[2];
+    vec4 light1Position = view * lightObj1.loc ;
+    vec4 light2Position = view * lightObj2.loc ;
+
+    glUniform4fv( glGetUniformLocation(shaderProgram, "Light1Position"), 1, light1Position); CheckError();
+    glUniform4fv( glGetUniformLocation(shaderProgram, "Light2Position"), 1, light2Position); CheckError();
+
+    for(int i=0; i<nObjects; i++) {
+        SceneObject so = sceneObjs[i];
+
+        vec3 rgb1 = so.rgb * lightObj1.rgb * so.brightness * lightObj1.brightness * 2.0;
+	vec3 rgbspec1 = vec3(1.0, 1.0, 1.0) * lightObj1.rgb  * so.brightness * lightObj1.brightness * 2.0; // rgb for specular term, with material's specular colour tending to white
+        glUniform3fv( glGetUniformLocation(shaderProgram, "AmbientProduct1"), 1, so.ambient * rgb1 ); CheckError();
+        glUniform3fv( glGetUniformLocation(shaderProgram, "DiffuseProduct1"), 1, so.diffuse * rgb1 );
+        //glUniform3fv( glGetUniformLocation(shaderProgram, "SpecularProduct"), 1, so.specular * rgb );
+	glUniform3fv( glGetUniformLocation(shaderProgram, "SpecularProduct1"), 1, so.specular * rgbspec1 );
+		
+	vec3 rgb2 = so.rgb * lightObj2.rgb * so.brightness * lightObj2.brightness * 2.0;
+	vec3 rgbspec2 = vec3(1.0, 1.0, 1.0) * lightObj2.rgb  * so.brightness * lightObj2.brightness * 2.0; // rgb for specular term, with material's specular colour tending to white
+        glUniform3fv( glGetUniformLocation(shaderProgram, "AmbientProduct2"), 1, so.ambient * rgb2 ); CheckError();
+        glUniform3fv( glGetUniformLocation(shaderProgram, "DiffuseProduct2"), 1, so.diffuse * rgb2 );
+        //glUniform3fv( glGetUniformLocation(shaderProgram, "SpecularProduct"), 1, so.specular * rgb );
+	glUniform3fv( glGetUniformLocation(shaderProgram, "SpecularProduct2"), 1, so.specular * rgbspec2 );
+		
         glUniform1f( glGetUniformLocation(shaderProgram, "Shininess"), so.shine ); CheckError();
 
         drawMesh(sceneObjs[i]);
@@ -432,11 +502,11 @@ static void adjustBlueBrightness(vec2 bl_br)
 
 // -----  
 static void adjustAmbientDiffuse(vec2 ambdif)
-  { sceneObjs[toolObj].ambient += ambdif[0]; sceneObjs[toolObj].diffuse += ambdif[1]; printf("amb: %f, dif: %f\n", sceneObjs[toolObj].ambient, sceneObjs[toolObj].diffuse); }
+  { sceneObjs[toolObj].ambient += ambdif[0]; sceneObjs[toolObj].diffuse += ambdif[1]; //printf("amb: %f, dif: %f\n", sceneObjs[toolObj].ambient, sceneObjs[toolObj].diffuse); }
 
 // -----  
 static void adjustSpecularShine(vec2 specshine)
-  { sceneObjs[toolObj].specular += specshine[0]; sceneObjs[toolObj].shine += specshine[1]; printf("spec: %f, shine: %f\n", sceneObjs[toolObj].specular, sceneObjs[toolObj].shine); }  
+  { sceneObjs[toolObj].specular += specshine[0]; sceneObjs[toolObj].shine += specshine[1]; //printf("spec: %f, shine: %f\n", sceneObjs[toolObj].specular, sceneObjs[toolObj].shine); }  
 
 // -----
 static void lightMenu(int id) {
@@ -448,6 +518,17 @@ static void lightMenu(int id) {
 
     } else if(id>=71 && id<=74) {
 	    toolObj = 1;
+        setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
+                         adjustBlueBrightness, mat2(1.0, 0, 0, 1.0) );
+    }
+
+    else if(id == 80) {
+	    toolObj = 2;
+        setToolCallbacks(adjustLocXZ, camRotZ(),
+                         adjustBrightnessY, mat2( 1.0, 0.0, 0.0, 10.0) );
+
+    } else if(id>=81 && id<=84) {
+	    toolObj = 2;
         setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
                          adjustBlueBrightness, mat2(1.0, 0, 0, 1.0) );
     }
@@ -486,11 +567,11 @@ static void materialMenu(int id) {
   }
   // You'll need to fill in the remaining menu items here.
   
-    if(id==20) {
+    else if(id==20) {
 	toolObj=currObject;
 	setToolCallbacks(adjustAmbientDiffuse, mat2(1, 0, 0, 1),
-					 adjustSpecularShine, mat2(1, 0, 0, -50));
-	printf("Amb: %f , Dif: %f, Spec: %f, Shine: %f\n", sceneObjs[toolObj].ambient, sceneObjs[toolObj].diffuse, sceneObjs[toolObj].specular, sceneObjs[toolObj].shine  );
+					 adjustSpecularShine, mat2(1, 0, 0, 60));
+	//printf("Amb: %f , Dif: %f, Spec: %f, Shine: %f\n", sceneObjs[toolObj].ambient, sceneObjs[toolObj].diffuse, sceneObjs[toolObj].specular, sceneObjs[toolObj].shine  );
 					  
     } else { printf("Error in materialMenu\n"); }
 }
@@ -508,6 +589,8 @@ static void mainmenu(int id) {
     deactivateTool();
     if(id == 12)
       waveToggle = !waveToggle;
+    if(id == 98)
+      toolObj = currObject;
     if(id == 41 && currObject>=0) {
 	    toolObj=currObject;
         setToolCallbacks(adjustLocXZ, camRotZ(),
@@ -543,6 +626,7 @@ static void makeMenu() {
   glutCreateMenu(mainmenu);
   glutAddMenuEntry("Rotate/Move Camera",50);
   glutAddSubMenu("Add object", objectId);
+  glutAddMenuEntry("Duplicate object", 98);
   glutAddMenuEntry("Position/Scale", 41);
   glutAddMenuEntry("Rotation/Texture Scale", 55);
   glutAddSubMenu("Material", materialMenuId);
