@@ -25,7 +25,7 @@ void main()
       
     // ***My addition (Alex)***
     if(sinAngle != 0) {
-        vec3 waveP = gl_Position;
+        vec4 waveP = gl_Position;
 	waveP.y += h*sin(sinAngle + xSpeed*waveP.x) + h*sin(sinAngle + zSpeed*waveP.z);
 	gl_Position.y = waveP.y;
     }
