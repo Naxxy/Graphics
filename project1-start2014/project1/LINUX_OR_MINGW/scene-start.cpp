@@ -589,9 +589,9 @@ static void mainmenu(int id) {
     deactivateTool();
     if(id == 12)
       waveToggle = !waveToggle;
-    if(id == 98)
+    if(id == 98) {
       toolObj = currObject;
-      duplicateObject(sceneObjs[currObject]);
+      duplicateObject(sceneObjs[currObject]); }
     if(id == 41 && currObject>=0) {
 	    toolObj=currObject;
         setToolCallbacks(adjustLocXZ, camRotZ(),
@@ -612,7 +612,6 @@ static void makeMenu() {
 
   int materialMenuId = glutCreateMenu(materialMenu);
   glutAddMenuEntry("R/G/B/All",10);
-  //glutAddMenuEntry("UNIMPLEMENTED: Ambient/Diffuse/Specular/Shine",20);
   glutAddMenuEntry("Ambient/Diffuse/Specular/Shine",20);
 
   int texMenuId = createArrayMenu(numTextures, textureMenuEntries, texMenu);
