@@ -591,7 +591,7 @@ static void mainmenu(int id) {
       waveToggle = !waveToggle;
     if(id == 98)
       toolObj = currObject;
-      duplicateObject(currObject);
+      duplicateObject(sceneObjs[currObject]);
     if(id == 41 && currObject>=0) {
 	    toolObj=currObject;
         setToolCallbacks(adjustLocXZ, camRotZ(),
