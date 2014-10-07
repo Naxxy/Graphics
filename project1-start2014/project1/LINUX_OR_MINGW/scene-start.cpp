@@ -502,11 +502,11 @@ static void adjustBlueBrightness(vec2 bl_br)
 
 // -----  
 static void adjustAmbientDiffuse(vec2 ambdif)
-  { sceneObjs[toolObj].ambient += ambdif[0]; sceneObjs[toolObj].diffuse += ambdif[1]; //printf("amb: %f, dif: %f\n", sceneObjs[toolObj].ambient, sceneObjs[toolObj].diffuse); }
+  { sceneObjs[toolObj].ambient += ambdif[0]; sceneObjs[toolObj].diffuse += ambdif[1]; } //printf("amb: %f, dif: %f\n", sceneObjs[toolObj].ambient, sceneObjs[toolObj].diffuse); }
 
 // -----  
 static void adjustSpecularShine(vec2 specshine)
-  { sceneObjs[toolObj].specular += specshine[0]; sceneObjs[toolObj].shine += specshine[1]; //printf("spec: %f, shine: %f\n", sceneObjs[toolObj].specular, sceneObjs[toolObj].shine); }  
+  { sceneObjs[toolObj].specular += specshine[0]; sceneObjs[toolObj].shine += specshine[1]; } //printf("spec: %f, shine: %f\n", sceneObjs[toolObj].specular, sceneObjs[toolObj].shine); }  
 
 // -----
 static void lightMenu(int id) {
@@ -591,6 +591,7 @@ static void mainmenu(int id) {
       waveToggle = !waveToggle;
     if(id == 98)
       toolObj = currObject;
+      duplicateObject(currObject);
     if(id == 41 && currObject>=0) {
 	    toolObj=currObject;
         setToolCallbacks(adjustLocXZ, camRotZ(),
