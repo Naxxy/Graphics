@@ -45,8 +45,7 @@ main()
 	
     // calculations for second, directional light, referenced http://en.wikibooks.org/wiki/GLSL_Programming/GLUT/Multiple_Lights   
     vec3 L2 = normalize( Light2Position.xyz ); // since this light is directional, light direction is the vector given by light coordinates
-    float Ldist2 = length(L2); // UNUSED, am unsure if distance is needed for directional lights
-
+    
     // Unit direction vectors for Blinn-Phong shading calculation
     vec3 E2 = normalize( -fPos );   // Direction to the eye/camera
     vec3 H2 = normalize( L2 + E2 );  // Halfway vector
@@ -55,13 +54,13 @@ main()
     vec3 N2 = normalize( (ModelView*vec4(fNormal, 0.0)).xyz );
 
     // Compute terms in the illumination equation
-    vec3 ambient2 = AmbientProduct2; //pow(Ldist2, 0.75);
+    vec3 ambient2 = AmbientProduct2;
 
     float Kd2 = max( dot(L2, N2), 0.0 );
-    vec3  diffuse2 = Kd2*DiffuseProduct2; //pow(Ldist2, 0.75);
+    vec3  diffuse2 = Kd2*DiffuseProduct2;
 
     float Ks2 = pow( max(dot(N2, H2), 0.0), Shininess);
-    vec3  specular2 = Ks2 * SpecularProduct2; //pow(Ldist2, 0.75);
+    vec3  specular2 = Ks2 * SpecularProduct2;
     
     if( dot(L2, N2) < 0.0 ) {
 	specular2 = vec3(0.0, 0.0, 0.0);
