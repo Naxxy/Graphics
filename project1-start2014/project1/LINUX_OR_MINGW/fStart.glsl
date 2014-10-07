@@ -6,7 +6,7 @@ in  vec3 fNormal;
 
 uniform vec3 AmbientProduct1, DiffuseProduct1, SpecularProduct1, AmbientProduct2, DiffuseProduct2, SpecularProduct2;
 uniform mat4 ModelView;
-uniform vec4 LightPosition;
+uniform vec4 Light1Position, Light2Position;
 uniform float Shininess;
 
 out vec4 fColor;
