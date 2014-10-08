@@ -31,10 +31,12 @@ static float camRotUpAndOverDeg=20; // rotates the camera up and over the centre
 
 // ***My addition (Alex)***
 bool waveToggle = false;
+GLboolean ground = false;
 GLfloat sinAngle;
 float lastAngle;
 float thisAngle;
 float restart;
+// ***End of my addition (Alex)***
 
 mat4 projection; // Projection matrix - set in the reshape function
 mat4 view; // View matrix - set in the display function.
@@ -317,7 +319,9 @@ void init( void )
     
     // ***My addition (Alex)***
     sinAngle = glGetUniformLocation(shaderProgram, "sinAngle");
+    ground = glGetUniformLocation(shaderProgram, "ground");
     thisAngle = lastAngle = restart = 0;
+    // ***End of my addition (Alex)***
 
     // Objects 0, and 1 are the ground and the first light.
     addObject(0); // Square for the ground
@@ -374,6 +378,12 @@ void drawMesh(SceneObject sceneObj) {
 
     // Set the model-view matrix for the shaders
     glUniformMatrix4fv( modelViewU, 1, GL_TRUE, view * model );
+    
+    // ***My addition (Alex)***
+    // Scene object mesh id is 0 for ground only
+    ground = (sceneObj.meshId == 0);
+    glUniform1f( glGetUniformLocation(shaderProgram, "ground"), ground );
+    // ***End of my addition (Alex)***
 
 
     // Activate the VAO for a mesh, loading if needed.
@@ -406,12 +416,12 @@ display( void )
     // ***My addition (Alex)***
     thisAngle = (0.001 * glutGet(GLUT_ELAPSED_TIME));
     if(waveToggle) {
-	  lastAngle = thisAngle - restart;
-	  sinAngle = lastAngle;
+	  sinAngle = lastAngle = thisAngle - restart;
 	  glUniform1f( glGetUniformLocation(shaderProgram, "sinAngle"), sinAngle );
     } else {
 	  restart = thisAngle - lastAngle;
     }
+    // ***End of my addition (Alex)***
     
     
     /*SceneObject lightObj1 = sceneObjs[1]; 
@@ -689,9 +699,9 @@ void timer(int unused)
 {
     char title[256];
     // ***My addition (Alex)***
-    sprintf(title, "%s %s: %d Frames Per Second @ %d x %d, waveToggle = %s, angle = %f",
-            lab, programName, numDisplayCalls, windowWidth, windowHeight, waveToggle?"True":"False", thisAngle-lastAngle);
-
+    sprintf(title, "%s %s: %d Frames Per Second @ %d x %d, wave = %s, angle = %f radians",
+            lab, programName, numDisplayCalls, windowWidth, windowHeight, waveToggle?"True":"False", thisAngle-restart);
+    // ***End of my addition (Alex)***
     glutSetWindowTitle(title);
 
     numDisplayCalls = 0;
