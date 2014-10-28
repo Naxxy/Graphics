@@ -8,7 +8,7 @@ out vec2 texCoord;
 out vec3 fPos;
 out vec3 fNormal;
 
-uniform mat4 ModelView;t
+uniform mat4 ModelView;
 uniform mat4 Projection;
 
 // ***My addition (Alex)***

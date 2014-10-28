@@ -4,10 +4,11 @@ in  vec2 texCoord;  // The third coordinate is always 0.0 and is discarded
 in  vec3 fPos;
 in  vec3 fNormal;
 
-uniform vec3 AmbientProduct1, DiffuseProduct1, SpecularProduct1, AmbientProduct2, DiffuseProduct2, SpecularProduct2;
+uniform vec3 AmbientProduct1, DiffuseProduct1, SpecularProduct1, AmbientProduct2, DiffuseProduct2, SpecularProduct2; // component products for light 1 and 2
 uniform mat4 ModelView;
-uniform vec4 Light1Position, Light2Position;
+uniform vec4 Light1Position, Light2Position; // position vec4s for light 1 and 2
 uniform float Shininess;
+uniform float texScale;
 
 out vec4 fColor;
 
@@ -43,7 +44,7 @@ main()
     } 
 	
 	
-    // calculations for second, directional light, referenced http://en.wikibooks.org/wiki/GLSL_Programming/GLUT/Multiple_Lights   
+    // calculations for second, directional light, referenced http://en.wikibooks.org/wiki/GLSL_Programming/GLUT/Multiple_Lights for line 47 to find vec3 L2 
     vec3 L2 = normalize( Light2Position.xyz ); // since this light is directional, light direction is the vector given by light coordinates
     
     // Unit direction vectors for Blinn-Phong shading calculation
@@ -68,8 +69,8 @@ main()
 
     // globalAmbient is independent of distance from the light source
     vec3 globalAmbient = vec3(0.1, 0.1, 0.1);
-    fColor.rgb = globalAmbient  + ambient1 + diffuse1 + specular1 + ambient2 + diffuse2 + specular2;
+    fColor.rgb = globalAmbient  + ambient1 + diffuse1 + specular1 + ambient2 + diffuse2 + specular2; // total light is sum of each component form each light
     fColor.a = 1.0;
     
-    fColor = fColor * texture2D( texture, texCoord * 2.0 );
+    fColor = fColor * texture2D( texture, texCoord * texScale );
 }
